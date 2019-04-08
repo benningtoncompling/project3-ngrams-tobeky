@@ -63,6 +63,7 @@ def bigramifier(bigrams):
 
 
 trigrams = nltk.trigrams(new_sentences)
+(bi_result, bi_types, bi_tokens) = bigramifier(bigrams)
 
 
 def trigraminator(trigrams):
@@ -70,8 +71,14 @@ def trigraminator(trigrams):
     tri_tally = 0
     tri_everything = 0
     for word in trigrams:
-        tri_everything += 1
         first2 = word[0] + " " + word[1]
+        if word[0] == "</s>":
+            continue
+        if word[1] == "</s>" or word[1] == "<s>":
+            continue
+        if word[2] == "<s>":
+            continue
+        tri_everything += 1
         if first2 not in tri_dictionary:
             tri_dictionary[first2] = {}
         if word[2] not in tri_dictionary[first2]:
@@ -89,7 +96,6 @@ output.write("\\data\\ \n")
 uni_types = len(uni_result)
 output.write("ngram 1: types= " + str(uni_types) + " tokens= " + str(uni_total) + "\n")
 
-(bi_result, bi_types, bi_tokens) = bigramifier(bigrams)
 output.write("ngram 2: types= " + str(bi_types) + " tokens= " + str(bi_tokens) + "\n")
 
 (tri_result, tri_types, tri_tokens) = trigraminator(trigrams)
@@ -117,7 +123,8 @@ output.write("\\3-grams \n")
 for key in tri_result:
     for key2 in tri_result[key]:
         tricount = tri_result[key][key2]
-        triprob = float(tricount) / bi_result[key]
+        split_key = key.split()
+        triprob = float(tricount) / bi_result[split_key[0]][split_key[1]]
         trilog_prob = math.log10(triprob)
         trikeys = str(key + " " + key2)
     output.write(str(tricount) + " " + str(triprob) + " " + str(trilog_prob) + " " + trikeys + "\n")
